@@ -1,0 +1,9 @@
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# OBS / Streamer.bot exports may include machine-specific paths
+# Keep exports tracked, but avoid temp artifacts
+*.tmp
+*.log
