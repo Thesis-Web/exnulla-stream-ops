@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "description": "Operational assets and documentation for ExNulla livestream (OBS overlays, Streamer.bot exports, runbooks).",
   "scripts": {
-    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\"",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#docs/exnulla-stream-ops-checklist-v0.md\"",
     "lint": "npm run lint:md"
   },
   "devDependencies": {
