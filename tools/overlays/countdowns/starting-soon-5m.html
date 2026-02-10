@@ -38,30 +38,48 @@
   </div>
 
   <script>
-    const START_SECONDS = 300; // change this: 300=5m, 600=10m, 900=15m
+    // Usage:
+    // - Default: 5 minutes
+    // - Override seconds: ?t=300
+    // - Override label:  ?label=Starts%20in
+    const params = new URLSearchParams(window.location.search);
 
+    const DEFAULT_SECONDS = 300;
+    const rawT = params.get("t");
+    const durationSeconds = (() => {
+      const n = rawT ? Number(rawT) : DEFAULT_SECONDS;
+      return Number.isFinite(n) && n > 0 ? Math.floor(n) : DEFAULT_SECONDS;
+    })();
 
-    let remaining = START_SECONDS;
+    const label = params.get("label") || "Starts in";
+
     const el = document.getElementById("timer");
 
-    function tick() {
-      const minutes = Math.floor(remaining / 60);
-      const seconds = remaining % 60;
+    // Drift-proof: compute remaining time from a fixed deadline
+    const startMs = Date.now();
+    const deadlineMs = startMs + durationSeconds * 1000;
 
-      el.textContent =
-        "Starts in " +
+    function formatRemaining(totalSeconds) {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return (
         String(minutes).padStart(2, "0") +
         ":" +
-        String(seconds).padStart(2, "0");
+        String(seconds).padStart(2, "0")
+      );
+    }
 
-      if (remaining > 0) {
-        remaining--;
+    function render() {
+      const remaining = Math.max(0, Math.ceil((deadlineMs - Date.now()) / 1000));
+      el.textContent = `${label} ${formatRemaining(remaining)}`;
+
+      if (remaining <= 0) {
+        clearInterval(timerId);
       }
     }
 
-    tick();
-    setInterval(tick, 1000);
+    render();
+    const timerId = setInterval(render, 250);
   </script>
 </body>
 </html>
-

@@ -1,0 +1,7 @@
+{
+  "config": {
+    "default": true,
+    "MD013": false, // line length
+    "MD033": false  // inline HTML (useful in docs)
+  }
+}

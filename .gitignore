@@ -3,7 +3,9 @@
 Thumbs.db
 .vscode/
 
-# OBS / Streamer.bot exports may include machine-specific paths
-# Keep exports tracked, but avoid temp artifacts
+# temp
 *.tmp
 *.log
+
+# node
+node_modules/

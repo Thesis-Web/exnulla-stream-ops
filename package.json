@@ -1,0 +1,13 @@
+{
+  "name": "exnulla-stream-ops",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Operational assets and documentation for ExNulla livestream (OBS overlays, Streamer.bot exports, runbooks).",
+  "scripts": {
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\"",
+    "lint": "npm run lint:md"
+  },
+  "devDependencies": {
+    "markdownlint-cli2": "^0.14.0"
+  }
+}
