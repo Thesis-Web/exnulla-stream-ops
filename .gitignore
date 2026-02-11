@@ -9,3 +9,10 @@ Thumbs.db
 
 # node
 node_modules/
+
+# video generation
+frames/
+tools/*.zip
+assets/*.zip
+.venv/
+
