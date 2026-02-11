@@ -1,156 +1,129 @@
-# 2026-02-10 — Day 4
-## Restream Removal → Multi-RTMP → Streamer.bot Stabilization
+# 2026-02-10 — Day 4: Restream Removal → Multi-RTMP → Streamer.bot Stabilization
 
----
-
-## Executive Summary
+## Executive summary
 
 Day 4 was not our cleanest execution, but we moved from a brittle multi-service setup
 (Restream + OBS docks + mixed chat routing) to a more deterministic stack:
 
-OBS → Multi-RTMP plugin → Native platform outputs  
-Streamer.bot → Combined Chat + Chat Sounds  
-PowerToys → Window control  
+- OBS → Multi-RTMP plugin → native platform outputs
+- Streamer.bot → combined chat + chat sounds
+- PowerToys → always-on-top operator view
 
-We also generated a full intro bumper **purely from code**.
+We also generated a full intro bumper **from code** (Python frames → ffmpeg MP4).
 
----
+## Progress log
 
-# 1. Why We Removed Restream
+- Removed Restream from the streaming path.
+- Switched to Multi-RTMP from inside OBS.
+- Consolidated chat monitoring inside Streamer.bot.
+- Added a headset chime on every new chat message.
+- Pinned chat window using PowerToys Always On Top.
+- Generated intro video deterministically (code-only pipeline).
 
-### Problems Observed
+## 1. Why we removed Restream
 
-- Extra failure surface (additional hop in stream path)
-- OBS Restream chat dock became fuzzy / unreadable
-- Resizing caused rendering artifacts
-- Added configuration complexity
-- Harder to debug signal path
+### Problems observed
+
+- Added an extra hop in the stream path.
+- OBS Restream dock was fuzzy/unreadable.
+- Resizing caused rendering artifacts.
+- Debugging signal path was harder than direct RTMP outputs.
 
 ### Decision
 
-Remove Restream from the pipeline and stream directly from OBS using multiple RTMP outputs.
+Remove Restream and stream directly from OBS using multiple RTMP outputs.
 
----
+## 2. Multi-RTMP plugin
 
-# 2. Multi-RTMP Plugin
+Plugin releases:
 
-Plugin:
-https://github.com/sorayuki/obs-multi-rtmp
+- [sorayuki/obs-multi-rtmp](https://github.com/sorayuki/obs-multi-rtmp)
 
 ### Install
 
-1. Download Windows installer matching OBS version.
-2. Install.
-3. Restart OBS.
-4. Tools → Multiple Output
+1. Download the Windows installer matching your OBS version.
+2. Install and restart OBS.
+3. Open `Tools → Multiple Output`.
 
 ### Result
 
-Single OBS instance pushing:
-- Twitch
-- Kick
-- (Future platforms optional)
+Single OBS instance pushing to multiple platforms without a relay.
 
-No middle relay.
+## 3. Combined chat strategy (Streamer.bot)
 
----
+Key realization: Streamer.bot already includes a combined chat window.
 
-# 3. Combined Chat Strategy (Streamer.bot)
-
-Key realization:
-Streamer.bot already includes a combined chat window.
-
-### What Worked
+### What worked
 
 - Connect Twitch + Kick in Streamer.bot.
-- Use Streamer.bot Chat window as operator view.
-- No dependency on OBS dock for monitoring.
+- Use the built-in chat window as operator view.
+- Remove dependency on OBS Restream dock.
 
-### Optional On-Stream Chat Strategy
+## 4. Chat sounds (headphone notification)
 
-Maintain a global buffer variable:
-
-- Append new chat line
-- Trim to last N lines
-- Push entire buffer into OBS text source
-
-Overwrite expected.
-
----
-
-# 4. Chat Sounds (Headphone Notification)
-
-Goal:
-Immediate audible cue for new chat message.
+Goal: Audible cue in headset for every new chat message.
 
 ### Implementation
 
-Trigger:
+Trigger on:
+
 - Twitch → Chat Message
 - Kick → Chat Message
 
-Action:
+Then run:
+
 - Sounds → Play Sound
-- Output device: Default system device
+- Output device: default system device
 
-### Important
+Ensure headphones are set as Windows default output.
 
-Headphones must be default Windows output device.
-Avoid OBS monitoring until stable.
+## 5. Always-on-top chat window
 
----
+Solution: Microsoft PowerToys.
 
-# 5. Always-On-Top Chat Window
+- Install PowerToys.
+- Use Always On Top hotkey to pin Streamer.bot chat window.
 
-Streamer.bot does not reliably enforce always-on-top.
+Releases:
 
-Solution:
-Microsoft PowerToys
+- [microsoft/PowerToys](https://github.com/microsoft/PowerToys/releases)
 
-- Install PowerToys
-- Use "Always On Top" hotkey to pin chat window
+## 6. Intro video from code
 
-This ensures chat stays visible during gameplay or coding.
-
----
-
-# 6. Intro Video From Code
-
-We generated a 7 second, 1080x1080 intro bumper using:
+We generated a 7-second, 1080×1080 intro bumper using:
 
 - Python (Pillow) for frame generation
 - ffmpeg for encoding
 
-This is deterministic and reproducible.
-
 See:
-tools/video/render_intro.py
 
-Encoding:
+`tools/video/render_intro.py`
 
+Encode:
+
+```bash
 ffmpeg -y -framerate 30 -i frames/frame_%04d.png \
   -c:v libx264 -pix_fmt yuv420p -movflags +faststart \
   exnulla_intro.mp4
+```
 
----
+Preview:
 
-# 7. Artifacts Added to Repo
+```bash
+mpv exnulla_intro.mp4
+```
 
+## 7. Artifacts added to repo
+
+- docs/ops/2026-02-10_day-4_restreeam_to_multirtmp_streamerbot.md
+- tools/video/render_intro.py
 - overlays/5min-countdown.html
 - overlays/15min-countdown.html
-- tools/video/render_intro.py
 - assets/audio/sfx/*
-- docs/ops/2026-02-10_day-4_restreeam_to_multirtmp_streamerbot.md
 
----
+## Status
 
-# Status
-
-Stream path stabilized.
-Chat consolidated.
-Notifications functional.
-Intro asset reproducible.
-
-Not pretty.
-But forward progress.
-
+- Stream path stabilized
+- Chat consolidated
+- Notifications functional
+- Intro asset reproducible
